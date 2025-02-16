@@ -37,6 +37,6 @@ abstract class Repository
      */
     public function paginateByRequest($query)
     {
-        return $query->paginate();
+        return $query->paginate(config('app.max_results_per_page'));
     }
 }
