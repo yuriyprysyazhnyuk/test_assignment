@@ -1,12 +1,15 @@
 ## Prerequisites to run the application:
 - docker
 - composer
+- npm
+- php
 
 ## Setup the application
 - move .env.example to .env
 - composer install
 - php artisan sail:install
 - php artisan key:generate
+- npm run build
 
 ## Start the application 
 - ./vendor/bin/sail up

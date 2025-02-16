@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Abstracts\Controller;
+use App\Actions\ContactForm\CreateContactFormRequestAction;
 use App\Actions\ContactForm\SearchContactFormRolesAction;
+use App\Http\Requests\ContactForm\CreateContactFormRequest;
 use App\Http\Resources\ContactFormRoleResource;
 use Illuminate\Http\Request;
 
@@ -41,7 +43,7 @@ class ContactFormController extends Controller
      *
      * @param Request $request
      * @param SearchContactFormRolesAction $action
-     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator|\Illuminate\Http\Resources\Json\AnonymousResourceCollection
+     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
      */
     public function getRoles(Request $request, SearchContactFormRolesAction $action)
     {
@@ -49,5 +51,84 @@ class ContactFormController extends Controller
             $action->run(['search' => $request->get('search')]),
             ContactFormRoleResource::class
         );
+    }
+
+    /**
+     * @OA\Post(
+     *     path="api/contact-forms",
+     *     summary="Create a contact form request",
+     *     description="Create a contact form request",
+     *     tags={"Contact form"},
+     *     @OA\Parameter(
+     *         name="first_name",
+     *         in="query",
+     *         required=false,
+     *         description="",
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Parameter(
+     *         name="last_name",
+     *         in="query",
+     *         required=false,
+     *         description="",
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Parameter(
+     *         name="phone",
+     *         in="query",
+     *         required=false,
+     *         description="",
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Parameter(
+     *         name="email",
+     *         in="query",
+     *         required=false,
+     *         description="",
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Parameter(
+     *         name="company",
+     *         in="query",
+     *         required=false,
+     *         description="",
+     *       @OA\Schema(type="string")
+     *      ),
+     *          @OA\Parameter(
+     *          name="role",
+     *          in="query",
+     *          required=false,
+     *          description="",
+     *          @OA\Schema(type="string")
+     *      ),
+     *          @OA\Parameter(
+     *          name="consent",
+     *          in="query",
+     *          required=false,
+     *          description="",
+     *          @OA\Schema(type="string")
+     *      ),
+     *          @OA\Parameter(
+     *          name="message",
+     *          in="query",
+     *          required=false,
+     *          description="",
+     *          @OA\Schema(type="string")
+     *      ),
+     *     @OA\Response(
+     *          response=200,
+     *          description="Successful response"
+     *      )
+     * )
+     *
+     * @param CreateContactFormRequest $request
+     * @param CreateContactFormRequestAction $action
+     * @return \Illuminate\Http\Response
+     */
+    public function create(CreateContactFormRequest $request, CreateContactFormRequestAction $action)
+    {
+        $action->run($request->all());
+
+        return $this->responseOk();
     }
 }

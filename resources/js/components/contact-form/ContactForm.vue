@@ -5,6 +5,13 @@
                 <div class="card-header text-center my-2">
                     <h4>Contact Form</h4>
                 </div>
+                <div v-if="serverErrors" class="text-danger">
+                    <ul>
+                        <li v-for="(errorText, fieldKey) in serverErrors">
+                            {{ fieldKey.charAt(0).toUpperCase() + fieldKey.slice(1) }}: {{errorText[0]}}
+                        </li>
+                    </ul>
+                </div>
                 <div v-if="!isSubmitted" class="card-body">
                     <form @submit.prevent="submitForm">
                         <div class="mb-3">
@@ -113,6 +120,7 @@ const errors = ref({});
 const submitIsEnabled = ref(false)
 const isLoading = ref(false)
 const isSubmitted = ref(false)
+const serverErrors = ref({})
 
 onMounted(() => {
     getContactFormRoles().then(
@@ -131,6 +139,7 @@ watch(
 
 function submitForm() {
     errors.value = {}
+    serverErrors.value = {}
 
     if (!formData.value.consent) {
         errors.value.consent = 'Please, give your consent'
@@ -141,17 +150,35 @@ function submitForm() {
         errors.value.message = 'Message should be more than 10 characters'
         return;
     }
-    console.log(formData.value);
 
     submitIsEnabled.value = false
     isLoading.value = true
 
-    sendContactForm(formData.value).then(response => {
-            console.log(response);
-            isSubmitted.value = true;
-        }
-    )
+    let data = {
+        ...formData.value,
+        first_name: formData.value.firstName,
+        last_name: formData.value.lastName,
+        role: formData.value.selectedRole
+    }
 
+    sendContactForm(data)
+        .then(response => {
+                isSubmitted.value = true;
+            }
+        )
+        .catch((err) => {
+            isSubmitted.value = false;
+            submitIsEnabled.value = true
+            isLoading.value = false
+
+            //validation error
+            if (err.response.status === 422) {
+                serverErrors.value = err.response.data
+            } else {
+                //server error
+                console.error(err.response.data)
+            }
+        })
 }
 </script>
 
